@@ -1,0 +1,584 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.5, user-scalable=yes">
+  <title>JSON ⇄ CSV converter · Smart column mapping & preview</title>
+  <meta name="description" content="Convert JSON to CSV or CSV to JSON online with smart column mapping and live preview. Free developer tool for Shopify, Etsy, Amazon sellers.">
+  <meta name="keywords" content="json to csv converter, csv to json online, shopify csv editor, etsy seo checker, amazon profit calculator, csv/json tools, developer tools, shopify sellers, json to csv/csv to json converter with smart column mapping and preview">
+  <meta name="author" content="organism.tools">
+  <meta property="og:title" content="JSON ⇄ CSV converter · Smart column mapping & preview">
+  <meta property="og:description" content="Instant bidirectional conversion with column mapping and live preview. No upload, no tracking.">
+  <meta property="og:type" content="website">
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="JSON ⇄ CSV converter · Smart column mapping & preview">
+  <meta name="twitter:description" content="Instant bidirectional conversion with column mapping and live preview. No upload, no tracking.">
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    body {
+      background: #f5f7fc;
+      font-family: system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      color: #1e293b;
+      padding: 1rem;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .container {
+      max-width: 1200px;
+      width: 100%;
+      background: white;
+      border-radius: 2rem;
+      box-shadow: 0 12px 30px rgba(0,0,0,0.05);
+      padding: 1.5rem 1.8rem 2rem;
+      margin-bottom: 1.5rem;
+    }
+    h1 {
+      font-size: 1.9rem;
+      font-weight: 600;
+      letter-spacing: -0.02em;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+      margin-bottom: 0.2rem;
+    }
+    .subhead {
+      color: #475569;
+      margin-bottom: 1.8rem;
+      font-size: 0.95rem;
+      border-left: 4px solid #3b82f6;
+      padding-left: 0.8rem;
+    }
+    .tool-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.8rem;
+      margin-top: 0.5rem;
+    }
+    @media (max-width: 720px) {
+      .tool-grid {
+        grid-template-columns: 1fr;
+        gap: 1.8rem;
+      }
+      .container {
+        padding: 1rem 1rem 1.5rem;
+      }
+      h1 {
+        font-size: 1.6rem;
+      }
+    }
+    .panel {
+      background: #f8fafc;
+      border-radius: 1.2rem;
+      padding: 1.2rem 1rem 1rem;
+      border: 1px solid #e9edf2;
+    }
+    .panel h2 {
+      font-size: 1.2rem;
+      font-weight: 500;
+      margin-bottom: 0.75rem;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+    textarea {
+      width: 100%;
+      min-height: 180px;
+      padding: 0.8rem;
+      border: 1px solid #d1d9e6;
+      border-radius: 0.9rem;
+      font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+      font-size: 0.85rem;
+      line-height: 1.5;
+      resize: vertical;
+      background: white;
+      transition: 0.15s;
+    }
+    textarea:focus {
+      border-color: #3b82f6;
+      outline: none;
+      box-shadow: 0 0 0 3px rgba(59,130,246,0.15);
+    }
+    .direction-bar {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 0.6rem 0.8rem;
+      margin: 1rem 0 0.5rem;
+    }
+    .btn-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+    .btn {
+      background: white;
+      border: 1px solid #cbd5e1;
+      padding: 0.4rem 1rem;
+      border-radius: 2rem;
+      font-size: 0.85rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: 0.1s;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.02);
+    }
+    .btn-primary {
+      background: #1e293b;
+      border-color: #1e293b;
+      color: white;
+    }
+    .btn-primary:hover {
+      background: #0f172a;
+    }
+    .btn-outline {
+      background: white;
+    }
+    .btn-outline:hover {
+      background: #f1f5f9;
+    }
+    .btn:active {
+      transform: scale(0.97);
+    }
+    .preview-box {
+      background: white;
+      border: 1px solid #e2e8f0;
+      border-radius: 0.9rem;
+      padding: 0.6rem 0.8rem;
+      margin-top: 0.8rem;
+      max-height: 200px;
+      overflow: auto;
+      font-size: 0.8rem;
+      font-family: monospace;
+      white-space: pre-wrap;
+      word-break: break-all;
+    }
+    .preview-label {
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+      color: #64748b;
+      margin-top: 0.8rem;
+      margin-bottom: 0.2rem;
+    }
+    .mapping-info {
+      background: #eef2ff;
+      border-radius: 0.7rem;
+      padding: 0.3rem 0.8rem;
+      font-size: 0.8rem;
+      color: #1e3a8a;
+      display: inline-block;
+      margin: 0.4rem 0 0;
+    }
+    .ad-placeholder {
+      background: #f1f5f9;
+      border-radius: 1rem;
+      padding: 0.8rem 1rem;
+      margin: 1.5rem 0 0.5rem;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      border: 1px dashed #cbd5e1;
+      font-size: 0.85rem;
+    }
+    .ad-placeholder span {
+      color: #475569;
+    }
+    .ad-placeholder .badge {
+      background: #e2e8f0;
+      padding: 0.2rem 0.8rem;
+      border-radius: 20px;
+      font-size: 0.7rem;
+      font-weight: 500;
+      color: #334155;
+    }
+    .affiliate-resource {
+      background: #f1f5f9;
+      border-radius: 1rem;
+      padding: 0.8rem 1.2rem;
+      margin: 1rem 0 0.2rem;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.8rem;
+      border: 1px solid #e2e8f0;
+    }
+    .affiliate-resource a {
+      color: #2563eb;
+      text-decoration: none;
+      font-weight: 500;
+    }
+    .affiliate-resource a:hover {
+      text-decoration: underline;
+    }
+    .privacy-note {
+      font-size: 0.7rem;
+      color: #64748b;
+      margin-top: 1.8rem;
+      border-top: 1px solid #e9edf2;
+      padding-top: 1rem;
+      text-align: center;
+    }
+    .footer-flex {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .status-badge {
+      font-size: 0.75rem;
+      background: #dcfce7;
+      color: #166534;
+      padding: 0.2rem 0.8rem;
+      border-radius: 20px;
+      display: inline-block;
+    }
+    .error-badge {
+      background: #fee2e2;
+      color: #991b1b;
+    }
+    .clipboard-btn {
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      font-size: 0.8rem;
+      color: #3b82f6;
+      padding: 0.1rem 0.4rem;
+    }
+    .clipboard-btn:hover {
+      color: #1e40af;
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+  <header>
+    <h1>⚡ JSON ⇄ CSV <span style="font-weight: 300; font-size: 0.9rem; background: #e9edf2; padding: 0.1rem 0.8rem; border-radius: 30px; margin-left: 0.2rem;">smart mapping + preview</span></h1>
+    <div class="subhead">Bidirectional converter with column mapping · paste your data, preview, copy · no upload</div>
+  </header>
+
+  <div class="tool-grid">
+    <!-- LEFT: JSON panel -->
+    <div class="panel">
+      <h2><span>📋 JSON</span> <span style="font-size: 0.7rem; font-weight: normal; background: #dbeafe; padding: 0.1rem 0.6rem; border-radius: 30px;">source / target</span></h2>
+      <textarea id="jsonInput" placeholder='Paste JSON array of objects, e.g.&#10;[{"id":1,"title":"Widget","price":9.99}]' spellcheck="false"></textarea>
+      <div class="direction-bar">
+        <div class="btn-group">
+          <button class="btn btn-primary" id="convertToCsvBtn">⬇️ → CSV</button>
+          <button class="btn btn-outline" id="sampleJsonBtn">📄 sample JSON</button>
+        </div>
+        <button class="clipboard-btn" id="copyJsonBtn" title="Copy JSON">📑 copy</button>
+      </div>
+      <div class="preview-label">🔍 JSON preview (first 2 items)</div>
+      <div class="preview-box" id="jsonPreview">—</div>
+    </div>
+
+    <!-- RIGHT: CSV panel -->
+    <div class="panel">
+      <h2><span>📊 CSV</span> <span style="font-size: 0.7rem; font-weight: normal; background: #dbeafe; padding: 0.1rem 0.6rem; border-radius: 30px;">source / target</span></h2>
+      <textarea id="csvInput" placeholder='Paste CSV with header row, e.g.&#10;id,title,price&#10;1,Widget,9.99' spellcheck="false"></textarea>
+      <div class="direction-bar">
+        <div class="btn-group">
+          <button class="btn btn-primary" id="convertToJsonBtn">⬆️ → JSON</button>
+          <button class="btn btn-outline" id="sampleCsvBtn">📄 sample CSV</button>
+        </div>
+        <button class="clipboard-btn" id="copyCsvBtn" title="Copy CSV">📑 copy</button>
+      </div>
+      <div class="preview-label">🔍 CSV preview (first 2 rows)</div>
+      <div class="preview-box" id="csvPreview">—</div>
+    </div>
+  </div>
+
+  <!-- Smart mapping info -->
+  <div id="mappingStatus" class="mapping-info" style="display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap; margin-top: 1rem;">
+    <span>🧠 Smart column mapping:</span> <span id="mappingDetail">keys / headers detected automatically</span>
+    <span id="rowCount" style="margin-left: auto; font-weight: 500;"></span>
+  </div>
+
+  <!-- Ad placeholder (visible) -->
+  <div class="ad-placeholder">
+    <span><strong>📢 Sponsor</strong> · Cloud storage for devs</span>
+    <span class="badge">affiliate link</span>
+    <span style="display: flex; gap: 0.5rem; align-items: center;">
+      <span style="opacity: 0.7;">⚡</span> 
+      <a href="#" style="color:#2563eb; text-decoration: none;" onclick="reportEvent('ad_click',{ad:'cloud'})">Try Hostmer</a>
+    </span>
+  </div>
+
+  <!-- Affiliate / resource placeholder -->
+  <div class="affiliate-resource">
+    <span>🛠️ <strong>Shopify sellers</strong> – optimize listings with our free SEO checker (partner tool) </span>
+    <a href="#" onclick="reportEvent('affiliate_click',{resource:'seo-checker'})">Etsy SEO checker →</a>
+  </div>
+
+  <!-- Privacy note + event reporting -->
+  <div class="privacy-note footer-flex">
+    <span>🔒 Events may be counted anonymously for product improvement. No personal data collected.</span>
+    <span style="font-size: 0.65rem; opacity: 0.7;">v1.0 · organism.tools</span>
+  </div>
+</div>
+
+<script>
+  (function() {
+    // ----- reportEvent -----
+    window.reportEvent = function(name, payload) {
+      if (typeof name !== 'string') return;
+      const endpoint = window.ORGANISM_METRICS_ENDPOINT;
+      if (!endpoint || typeof endpoint !== 'string') return;
+      try {
+        const body = JSON.stringify({ event: name, payload: payload || {}, timestamp: Date.now() });
+        if (navigator.sendBeacon) {
+          navigator.sendBeacon(endpoint, body);
+        } else {
+          fetch(endpoint, { method: 'POST', body: body, keepalive: true, credentials: 'omit' }).catch(()=>{});
+        }
+      } catch(e) { /* silent */ }
+    };
+
+    // DOM refs
+    const jsonInput = document.getElementById('jsonInput');
+    const csvInput = document.getElementById('csvInput');
+    const jsonPreview = document.getElementById('jsonPreview');
+    const csvPreview = document.getElementById('csvPreview');
+    const mappingDetail = document.getElementById('mappingDetail');
+    const rowCount = document.getElementById('rowCount');
+
+    // helper: truncate preview
+    function previewJSON(str, maxItems = 2) {
+      try {
+        const arr = JSON.parse(str);
+        if (!Array.isArray(arr)) return '⚠️ not an array';
+        if (arr.length === 0) return '[] (empty)';
+        const slice = arr.slice(0, maxItems);
+        return JSON.stringify(slice, null, 2) + (arr.length > maxItems ? `\n… and ${arr.length - maxItems} more` : '');
+      } catch (e) {
+        return '⚠️ invalid JSON';
+      }
+    }
+
+    function previewCSV(text, maxRows = 2) {
+      if (!text.trim()) return '—';
+      const lines = text.split(/\r?\n/).filter(l => l.trim() !== '');
+      if (lines.length === 0) return '—';
+      const header = lines[0];
+      const dataLines = lines.slice(1, 1 + maxRows);
+      let out = header;
+      if (dataLines.length) out += '\n' + dataLines.join('\n');
+      if (lines.length - 1 > maxRows) out += `\n… and ${lines.length - 1 - maxRows} more rows`;
+      return out;
+    }
+
+    // update previews & mapping
+    function updatePreviews() {
+      // JSON preview
+      const jsonRaw = jsonInput.value;
+      jsonPreview.textContent = jsonRaw.trim() ? previewJSON(jsonRaw) : '—';
+
+      // CSV preview
+      const csvRaw = csvInput.value;
+      csvPreview.textContent = csvRaw.trim() ? previewCSV(csvRaw) : '—';
+
+      // mapping info: show keys from JSON or CSV headers
+      let keys = [];
+      let rowCountText = '';
+      try {
+        const parsed = JSON.parse(jsonRaw);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          keys = Object.keys(parsed[0]);
+          rowCountText = `📦 ${parsed.length} objects`;
+        }
+      } catch (e) { /* ignore */ }
+
+      if (keys.length === 0 && csvInput.value.trim()) {
+        const firstLine = csvInput.value.split(/\r?\n/)[0];
+        if (firstLine) {
+          keys = firstLine.split(',').map(s => s.trim()).filter(Boolean);
+          const lineCount = csvInput.value.split(/\r?\n/).filter(l => l.trim() !== '').length - 1; // minus header
+          rowCountText = `📊 ${Math.max(0, lineCount)} rows`;
+        }
+      }
+      if (keys.length > 0) {
+        mappingDetail.textContent = `[ ${keys.slice(0, 8).join(', ')}${keys.length > 8 ? ' …' : ''} ]`;
+      } else {
+        mappingDetail.textContent = 'paste data to detect columns';
+      }
+      rowCount.textContent = rowCountText;
+    }
+
+    // JSON → CSV conversion (smart mapping)
+    function convertJsonToCsv() {
+      const raw = jsonInput.value.trim();
+      if (!raw) { 
+        csvInput.value = '';
+        updatePreviews();
+        reportEvent('convert', { from: 'json', to: 'csv', status: 'empty_input' });
+        return;
+      }
+      try {
+        const data = JSON.parse(raw);
+        if (!Array.isArray(data) || data.length === 0) {
+          csvInput.value = '⚠️ need non-empty array';
+          updatePreviews();
+          reportEvent('convert', { from: 'json', to: 'csv', status: 'invalid_array' });
+          return;
+        }
+        // extract all keys (union)
+        const keySet = new Set();
+        data.forEach(item => { if (typeof item === 'object' && item !== null) Object.keys(item).forEach(k => keySet.add(k)); });
+        const keys = Array.from(keySet);
+        if (keys.length === 0) {
+          csvInput.value = '⚠️ no keys found';
+          updatePreviews();
+          return;
+        }
+        // build CSV
+        const escape = (val) => {
+          if (val === null || val === undefined) return '';
+          const str = String(val);
+          if (str.includes(',') || str.includes('"') || str.includes('\n')) {
+            return '"' + str.replace(/"/g, '""') + '"';
+          }
+          return str;
+        };
+        const header = keys.join(',');
+        const rows = data.map(item => {
+          return keys.map(k => escape(item[k])).join(',');
+        });
+        const csvContent = [header, ...rows].join('\n');
+        csvInput.value = csvContent;
+        updatePreviews();
+        reportEvent('convert', { from: 'json', to: 'csv', rows: data.length, keys: keys.length });
+      } catch (e) {
+        csvInput.value = '⚠️ JSON parse error: ' + e.message;
+        updatePreviews();
+        reportEvent('convert', { from: 'json', to: 'csv', status: 'parse_error' });
+      }
+    }
+
+    // CSV → JSON conversion (smart mapping)
+    function convertCsvToJson() {
+      const raw = csvInput.value.trim();
+      if (!raw) {
+        jsonInput.value = '';
+        updatePreviews();
+        reportEvent('convert', { from: 'csv', to: 'json', status: 'empty_input' });
+        return;
+      }
+      try {
+        const lines = raw.split(/\r?\n/).filter(l => l.trim() !== '');
+        if (lines.length < 1) {
+          jsonInput.value = '⚠️ need header row';
+          updatePreviews();
+          return;
+        }
+        // parse header (simple, supports quoted commas? basic)
+        const parseLine = (line) => {
+          const result = [];
+          let current = '';
+          let inQuotes = false;
+          for (let i = 0; i < line.length; i++) {
+            const ch = line[i];
+            if (ch === '"') {
+              if (inQuotes && line[i+1] === '"') { current += '"'; i++; }
+              else inQuotes = !inQuotes;
+            } else if (ch === ',' && !inQuotes) {
+              result.push(current.trim());
+              current = '';
+            } else {
+              current += ch;
+            }
+          }
+          result.push(current.trim());
+          return result;
+        };
+        const header = parseLine(lines[0]);
+        const rows = [];
+        for (let i = 1; i < lines.length; i++) {
+          const values = parseLine(lines[i]);
+          const obj = {};
+          header.forEach((key, idx) => {
+            let val = (idx < values.length) ? values[idx] : '';
+            // try numeric
+            if (val !== '' && !isNaN(val) && val.trim() !== '') val = Number(val);
+            obj[key] = val;
+          });
+          rows.push(obj);
+        }
+        const jsonOutput = JSON.stringify(rows, null, 2);
+        jsonInput.value = jsonOutput;
+        updatePreviews();
+        reportEvent('convert', { from: 'csv', to: 'json', rows: rows.length, keys: header.length });
+      } catch (e) {
+        jsonInput.value = '⚠️ CSV parse error: ' + e.message;
+        updatePreviews();
+        reportEvent('convert', { from: 'csv', to: 'json', status: 'parse_error' });
+      }
+    }
+
+    // samples
+    function loadSampleJson() {
+      jsonInput.value = JSON.stringify([
+        { "id": 1, "title": "Wireless Mouse", "price": 29.99, "category": "electronics", "inStock": true },
+        { "id": 2, "title": "Desk Lamp", "price": 49.50, "category": "home", "inStock": false },
+        { "id": 3, "title": "Notebook A5", "price": 12.30, "category": "stationery", "inStock": true }
+      ], null, 2);
+      updatePreviews();
+      reportEvent('sample', { type: 'json' });
+    }
+    function loadSampleCsv() {
+      csvInput.value = 'id,title,price,category,inStock\n1,Wireless Mouse,29.99,electronics,true\n2,Desk Lamp,49.5,home,false\n3,Notebook A5,12.3,stationery,true\n4,USB Hub,18.75,electronics,true';
+      updatePreviews();
+      reportEvent('sample', { type: 'csv' });
+    }
+
+    // clipboard
+    function copyToClipboard(text, label) {
+      if (!text) return;
+      navigator.clipboard.writeText(text).then(() => {
+        reportEvent('copy', { label });
+      }).catch(() => {});
+    }
+
+    // event listeners
+    document.getElementById('convertToCsvBtn').addEventListener('click', convertJsonToCsv);
+    document.getElementById('convertToJsonBtn').addEventListener('click', convertCsvToJson);
+    document.getElementById('sampleJsonBtn').addEventListener('click', loadSampleJson);
+    document.getElementById('sampleCsvBtn').addEventListener('click', loadSampleCsv);
+    document.getElementById('copyJsonBtn').addEventListener('click', () => copyToClipboard(jsonInput.value, 'json'));
+    document.getElementById('copyCsvBtn').addEventListener('click', () => copyToClipboard(csvInput.value, 'csv'));
+
+    // live preview on input
+    jsonInput.addEventListener('input', updatePreviews);
+    csvInput.addEventListener('input', updatePreviews);
+
+    // init preview
+    updatePreviews();
+
+    // set sample CSV as default (friendly)
+    loadSampleCsv();
+    // also put sample JSON in left? but keep CSV visible. we set JSON sample too for symmetry
+    loadSampleJson();
+
+    // report page view
+    reportEvent('page_view', { tool: 'json_csv_converter' });
+  })();
+</script>
+
+<section data-organism-discovery="hub" style="margin:32px auto 20px;max-width:1040px;padding:16px;border-top:1px solid #d9e2ec;color:#475569;font:14px/1.5 system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif">
+  <strong style="display:block;color:#0f172a;margin-bottom:6px">More free browser tools</strong>
+  <p style="margin:0 0 8px">This page is part of an autonomous micro-tool network. Explore the live tool directory and related utilities.</p>
+  <p style="margin:0"><a href="https://kingms888.github.io/do-digital-organism-index/" style="color:#0f766e;font-weight:700">Open the tool directory</a> </p>
+</section>
+</body>
+</html>
